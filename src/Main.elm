@@ -6,7 +6,7 @@ import App exposing (init, update, view)
 
 main =
     Html.program
-        { init = init
+        { init = init "Top"
         , update = update
         , view = view
         , subscriptions = always Sub.none

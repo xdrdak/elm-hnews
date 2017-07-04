@@ -3,15 +3,32 @@ module App exposing (..)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
+import Mock.ArticleList
+import Components.HeaderMenu
+import Components.ArticleList
+import Http
+import Json.Decode as Decode
+import Debug exposing (..)
+
+
+-- MODELS
 
 
 type alias Model =
-    Int
+    { value : Int
+    , articles : List Components.ArticleList.Article
+    , fetchedArticles : List Int
+    }
 
 
-init : ( Model, Cmd Msg )
-init =
-    ( 0, Cmd.none )
+init : String -> ( Model, Cmd Msg )
+init topic =
+    ( { value = 0
+      , articles = Mock.ArticleList.mockArticles
+      , fetchedArticles = []
+      }
+    , getStories topic
+    )
 
 
 
@@ -19,36 +36,70 @@ init =
 
 
 type Msg
-    = Inc
+    = Stories (Result Http.Error (List Int))
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
-update message model =
-    case message of
-        Inc ->
-            (model + 1) ! []
+update action model =
+    case action of
+        Stories (Ok fetchedArticles) ->
+            ( Model model.value model.articles fetchedArticles, Cmd.none )
+
+        Stories (Err _) ->
+            ( model, Cmd.none )
 
 
 
--- VIEW
+-- VIEWS
+-- TODO: Move this to a seperate `.elm` file.
+-- TODO: Use chevrons instead of `<` or `>`
 
 
-view : Model -> Html Msg
-view model =
-    div [ class "container" ]
-        [ h1 []
-            [ img [ src "images/logo.png" ] []
-            , text "Hot loading"
-            ]
-        , p [] [ text "Click on the button below to increment the state. Then make a change to the source code and see how the state is retained after you recompile." ]
-        , p [] [ text <| toString model ]
-        , button
-            [ class "btn btn-primary"
-            , onClick Inc
-            ]
-            [ text "+ 1" ]
-        , p []
-            [ text "And now don't forget to add a star to the Github repo "
-            , a [ href "https://github.com/simonh1000/elm-webpack-starter" ] [ text "elm-webpack-starter" ]
-            ]
+viewPageSelector =
+    div [ class "page-selector" ]
+        [ div [] [ text "< prev" ]
+        , div [] [ text "0/25" ]
+        , div [] [ text "next >" ]
         ]
+
+
+view model =
+    div []
+        [ Components.HeaderMenu.viewHeader
+        , viewPageSelector
+        , Components.ArticleList.viewArticleList model.articles
+        ]
+
+
+
+-- SUBSCRIPTIONS
+
+
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    Sub.none
+
+
+
+-- HTTP
+
+
+buildStoriesIdFetchUrl t =
+    "https://hacker-news.firebaseio.com/v0/" ++ t ++ "stories.json?print=pretty"
+
+
+validFilters =
+    [ "top", "new", "best" ]
+
+
+decodeStoryIds =
+    (Decode.list Decode.int)
+
+
+getStories filterType =
+    let
+        url =
+            "https://hacker-news.firebaseio.com/v0/topstories.json?print=pretty"
+    in
+        Http.send Stories <|
+            Http.get url decodeStoryIds

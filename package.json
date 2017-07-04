@@ -1,8 +1,8 @@
 {
-  "author": "Simon Hampton",
+  "author": "Xavier",
   "name": "elm-hot-loader-starter",
-  "version": "0.7.0",
-  "description": "Elm starter with Webpack 3 hotloading",
+  "version": "0.0.1",
+  "description": "It's like hackernews, but runs on elm!",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -39,7 +39,5 @@
     "webpack-dev-server": "^2.5.0",
     "webpack-merge": "^4.1.0"
   },
-  "dependencies": {
-    "bootstrap": "^4.0.0-alpha.6"
-  }
+  "dependencies": {}
 }
