@@ -18,8 +18,8 @@ type alias Article =
     }
 
 
-viewArticleMeta : ArticleMeta -> Html msg
-viewArticleMeta meta =
+articleMeta : ArticleMeta -> Html msg
+articleMeta meta =
     div []
         [ p [ class "meta" ]
             [ text (toString meta.points ++ " points by ")
@@ -30,22 +30,23 @@ viewArticleMeta meta =
         ]
 
 
-viewArticleTitle title =
+articleTitle : String -> Html msg
+articleTitle title =
     div []
         [ a [ href "#0", class "article-title" ]
-            [ text <| title ]
+            [ text title ]
         ]
 
 
-viewArticle : Article -> Html msg
-viewArticle article =
+article : Article -> Html msg
+article a =
     div [ class "news-article" ]
         [ div [ class "news-article__id" ]
-            [ p [] [ text <| toString article.id ]
+            [ p [] [ text <| toString a.id ]
             ]
         , div [ class "news-article__content" ]
-            [ viewArticleTitle article.title
-            , viewArticleMeta { points = 21, author = "Author", commentCount = 100 }
+            [ articleTitle a.title
+            , articleMeta { points = 21, author = "Author", commentCount = 100 }
             ]
         ]
 
@@ -53,5 +54,5 @@ viewArticle article =
 viewArticleList : List Article -> Html msg
 viewArticleList articles =
     articles
-        |> List.map viewArticle
+        |> List.map article
         |> div [ class "container" ]
